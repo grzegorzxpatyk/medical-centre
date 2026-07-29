@@ -1,0 +1,73 @@
+# Production: builds and runs Postgres + CMS + frontend.
+#   docker compose -f docker-compose.prod.yml up --build
+# Separate project name so containers/volumes never collide with the dev stack.
+name: medical-centre-prod
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-payload}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-payload}
+      POSTGRES_DB: ${POSTGRES_DB:-medical_centre}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  cms-migrate:
+    build:
+      context: .
+      dockerfile: apps/cms/Dockerfile
+      target: migrator
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-payload}:${POSTGRES_PASSWORD:-payload}@postgres:5432/${POSTGRES_DB:-medical_centre}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: 'no'
+
+  cms:
+    build:
+      context: .
+      dockerfile: apps/cms/Dockerfile
+      target: runner
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-payload}:${POSTGRES_PASSWORD:-payload}@postgres:5432/${POSTGRES_DB:-medical_centre}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in .env}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+    ports:
+      - '3001:3001'
+    volumes:
+      - cms_media:/app/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+      cms-migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: runner
+      args:
+        NEXT_PUBLIC_CMS_URL: ${NEXT_PUBLIC_CMS_URL:-http://localhost:3001}
+    restart: unless-stopped
+    environment:
+      # Server-side requests go over the docker network
+      CMS_URL: http://cms:3001
+    ports:
+      - '3000:3000'
+    depends_on:
+      - cms
+
+volumes:
+  pgdata:
+  cms_media:

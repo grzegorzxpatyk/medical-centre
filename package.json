@@ -1,0 +1,18 @@
+{
+  "name": "medical-centre",
+  "private": true,
+  "packageManager": "pnpm@11.15.0",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "start": "turbo run start",
+    "check-types": "turbo run check-types",
+    "generate:types": "turbo run generate:types"
+  },
+  "devDependencies": {
+    "turbo": "^2.10.5"
+  }
+}

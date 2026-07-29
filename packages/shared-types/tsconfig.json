@@ -1,0 +1,4 @@
+{
+  "extends": "@medical-centre/typescript-config/base.json",
+  "include": ["src"]
+}
