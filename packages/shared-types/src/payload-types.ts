@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     doctors: Doctor;
     services: Service;
+    news: News;
     pages: Page;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -83,6 +84,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     doctors: DoctorsSelect<false> | DoctorsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
+    news: NewsSelect<false> | NewsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -202,11 +204,80 @@ export interface Doctor {
 export interface Service {
   id: number;
   title: string;
+  slug: string;
+  icon:
+    | 'stethoscope'
+    | 'baby'
+    | 'heart-pulse'
+    | 'user-round'
+    | 'briefcase-medical'
+    | 'syringe'
+    | 'brain'
+    | 'eye'
+    | 'bone'
+    | 'activity';
+  /**
+   * Short teaser shown on the poradnia card
+   */
   description?: string | null;
+  /**
+   * Full description shown on the poradnia detail page
+   */
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Lower numbers appear first
+   */
+  order?: number | null;
   /**
    * Price in PLN
    */
   price?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news".
+ */
+export interface News {
+  id: number;
+  title: string;
+  slug: string;
+  /**
+   * Short teaser shown on the landing page and the listing
+   */
+  excerpt?: string | null;
+  publishedAt: string;
+  image?: (number | null) | Media;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -275,6 +346,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'services';
         value: number | Service;
+      } | null)
+    | ({
+        relationTo: 'news';
+        value: number | News;
       } | null)
     | ({
         relationTo: 'pages';
@@ -381,8 +456,26 @@ export interface DoctorsSelect<T extends boolean = true> {
  */
 export interface ServicesSelect<T extends boolean = true> {
   title?: T;
+  slug?: T;
+  icon?: T;
   description?: T;
+  content?: T;
+  order?: T;
   price?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news_select".
+ */
+export interface NewsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  excerpt?: T;
+  publishedAt?: T;
+  image?: T;
+  content?: T;
   updatedAt?: T;
   createdAt?: T;
 }

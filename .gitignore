@@ -8,6 +8,9 @@ out/
 # Turborepo
 .turbo/
 
+# TypeScript build cache
+*.tsbuildinfo
+
 # Environment
 .env
 .env.local

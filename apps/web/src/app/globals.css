@@ -48,89 +48,77 @@
 }
 
 :root {
-    --background: 210 40% 98%; /* #f4f8fd */
-    --foreground: 213 62% 18%; /* #0d2c54 */
-    --card: 0 0% 100%; /* #ffffff */
-    --card-foreground: 213 62% 18%;
-    --primary: 211 71% 40%; /* #1a5cad */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 213 45% 92%; /* #eaf2fb */
-    --secondary-foreground: 213 62% 18%;
-    --muted: 213 45% 94%;
-    --muted-foreground: 215 16% 42%; /* #6b7785 */
-    --accent: 211 71% 40%;
-    --accent-foreground: 0 0% 100%;
-    --desctructive: #c0392b;
-    --border: 214 32% 88%; /* #dbe3ee */
-    --input: 214 32% 88%;
-    --ring: 211 71% 40%;
-
-    /* --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0); */
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    /* --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0); 
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0); */
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
+    /* Tailwind v4 consumes these through `@theme inline`, so each value has to
+       be a real colour — the bare `210 40% 98%` triplets of the v3 era do not
+       work here and `color-mix()` on them fails outright. */
+    --background: hsl(210 60% 98%); /* #f6f9fd — page base */
+    --foreground: hsl(213 62% 18%); /* #0d2c54 — navy headings and body copy */
+    --card: hsl(0 0% 100%); /* #ffffff */
+    --card-foreground: hsl(213 62% 18%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(213 62% 18%);
+    --primary: hsl(211 71% 40%); /* #1a5cad — buttons, links, CTA band */
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(213 45% 92%); /* #eaf2fb — tinted section bands */
+    --secondary-foreground: hsl(213 62% 18%);
+    --muted: hsl(213 45% 94%);
+    --muted-foreground: hsl(212 16% 45%); /* #616e7d — supporting copy */
+    /* `accent` is shadcn's hover/highlight *surface*, used by navigation-menu
+       and list items — it is the light tint, not the brand blue. */
+    --accent: hsl(213 45% 92%);
+    --accent-foreground: hsl(213 62% 18%);
+    --destructive: hsl(6 63% 46%); /* #c0392b */
+    --border: hsl(214 32% 88%); /* #dbe3ee */
+    --input: hsl(214 32% 88%);
+    --ring: hsl(211 71% 40%);
+    --chart-1: hsl(211 71% 78%);
+    --chart-2: hsl(211 71% 66%);
+    --chart-3: hsl(211 71% 54%);
+    --chart-4: hsl(211 71% 40%);
+    --chart-5: hsl(213 62% 26%);
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --sidebar: hsl(210 60% 98%);
+    --sidebar-foreground: hsl(213 62% 18%);
+    --sidebar-primary: hsl(211 71% 40%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(213 45% 92%);
+    --sidebar-accent-foreground: hsl(213 62% 18%);
+    --sidebar-border: hsl(214 32% 88%);
+    --sidebar-ring: hsl(211 71% 40%);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --background: hsl(213 45% 8%);
+    --foreground: hsl(210 40% 96%);
+    --card: hsl(213 42% 12%);
+    --card-foreground: hsl(210 40% 96%);
+    --popover: hsl(213 42% 12%);
+    --popover-foreground: hsl(210 40% 96%);
+    --primary: hsl(211 80% 60%); /* lifted for contrast against the navy base */
+    --primary-foreground: hsl(213 62% 12%);
+    --secondary: hsl(213 35% 18%);
+    --secondary-foreground: hsl(210 40% 96%);
+    --muted: hsl(213 35% 18%);
+    --muted-foreground: hsl(212 20% 68%);
+    --accent: hsl(213 35% 20%);
+    --accent-foreground: hsl(210 40% 96%);
+    --destructive: hsl(6 70% 60%);
+    --border: hsl(210 40% 96% / 12%);
+    --input: hsl(210 40% 96% / 16%);
+    --ring: hsl(211 80% 60%);
+    --chart-1: hsl(211 80% 78%);
+    --chart-2: hsl(211 80% 68%);
+    --chart-3: hsl(211 80% 60%);
+    --chart-4: hsl(211 71% 48%);
+    --chart-5: hsl(211 71% 36%);
+    --sidebar: hsl(213 42% 12%);
+    --sidebar-foreground: hsl(210 40% 96%);
+    --sidebar-primary: hsl(211 80% 60%);
+    --sidebar-primary-foreground: hsl(213 62% 12%);
+    --sidebar-accent: hsl(213 35% 20%);
+    --sidebar-accent-foreground: hsl(210 40% 96%);
+    --sidebar-border: hsl(210 40% 96% / 12%);
+    --sidebar-ring: hsl(211 80% 60%);
 }
 
 @layer base {

@@ -8,6 +8,7 @@ import sharp from 'sharp'
 
 import { Doctors } from './collections/Doctors'
 import { Media } from './collections/Media'
+import { News } from './collections/News'
 import { Pages } from './collections/Pages'
 import { Services } from './collections/Services'
 import { Users } from './collections/Users'
@@ -22,7 +23,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Doctors, Services, Pages],
+  collections: [Users, Media, Doctors, Services, News, Pages],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({
