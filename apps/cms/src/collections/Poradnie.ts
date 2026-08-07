@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 /**
  * Values must stay in sync with the lucide icon map in
- * apps/web/src/components/service-icon.tsx
+ * apps/web/src/components/poradnia-icon.tsx
  */
 const iconOptions = [
   { label: 'Stethoscope', value: 'stethoscope' },
@@ -17,8 +17,13 @@ const iconOptions = [
   { label: 'Activity', value: 'activity' },
 ]
 
-export const Services: CollectionConfig = {
-  slug: 'services',
+export const Poradnie: CollectionConfig = {
+  slug: 'poradnie',
+  // English pluralisation of a Polish slug gets this wrong, so spell it out.
+  labels: {
+    singular: 'Poradnia',
+    plural: 'Poradnie',
+  },
   access: {
     read: () => true,
   },

@@ -1,4 +1,4 @@
-import type { Doctor, Media, News, Page, Service } from '@medical-centre/shared-types'
+import type { Doctor, Media, News, Page, Poradnia } from '@medical-centre/shared-types'
 
 const CMS_URL = process.env.CMS_URL ?? process.env.NEXT_PUBLIC_CMS_URL ?? 'http://localhost:3001'
 
@@ -62,8 +62,8 @@ async function fetchFromCms<T>(path: string): Promise<PaginatedDocs<T>> {
 
 export const getDoctors = () => fetchFromCms<Doctor>('/doctors?limit=100')
 
-export const getServices = (limit = 100) =>
-  fetchFromCms<Service>(`/services?limit=${limit}&sort=order`)
+export const getPoradnie = (limit = 100) =>
+  fetchFromCms<Poradnia>(`/poradnie?limit=${limit}&sort=order`)
 
 export const getNews = (limit = 3) => fetchFromCms<News>(`/news?limit=${limit}&sort=-publishedAt`)
 
@@ -72,9 +72,9 @@ export const getPageBySlug = async (slug: string): Promise<Page | null> => {
   return result.docs[0] ?? null
 }
 
-export const getServiceBySlug = async (slug: string): Promise<Service | null> => {
-  const result = await fetchFromCms<Service>(
-    `/services?where[slug][equals]=${encodeURIComponent(slug)}`,
+export const getPoradniaBySlug = async (slug: string): Promise<Poradnia | null> => {
+  const result = await fetchFromCms<Poradnia>(
+    `/poradnie?where[slug][equals]=${encodeURIComponent(slug)}`,
   )
   return result.docs[0] ?? null
 }

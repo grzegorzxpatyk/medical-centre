@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 
 import { EmptyCmsHint } from '@/components/empty-cms-hint'
 import { PageShell } from '@/components/page-shell'
-import { ServiceCard } from '@/components/service-card'
-import { getServices } from '@/lib/api'
+import { PoradniaCard } from '@/components/poradnia-card'
+import { getPoradnie } from '@/lib/api'
 
 export const metadata: Metadata = {
   title: 'Poradnie',
@@ -11,20 +11,20 @@ export const metadata: Metadata = {
 }
 
 export default async function PoradniePage() {
-  const { docs: services } = await getServices()
+  const { docs: poradnie } = await getPoradnie()
 
   return (
     <PageShell
       title="Nasze poradnie"
       lead="Zapewniamy kompleksową opiekę medyczną w szerokim zakresie specjalizacji."
     >
-      {services.length === 0 ? (
+      {poradnie.length === 0 ? (
         <EmptyCmsHint>Nie dodano jeszcze żadnych poradni.</EmptyCmsHint>
       ) : (
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {services.map((service) => (
-            <li key={service.id}>
-              <ServiceCard service={service} />
+          {poradnie.map((poradnia) => (
+            <li key={poradnia.id}>
+              <PoradniaCard poradnia={poradnia} />
             </li>
           ))}
         </ul>

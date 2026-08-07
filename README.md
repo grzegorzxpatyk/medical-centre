@@ -26,7 +26,7 @@ pnpm dev                    # both apps via turbo
 ```
 
 - Admin panel: http://localhost:3001/admin (create the first user on first visit)
-- REST API: http://localhost:3001/api/doctors, `/api/services`, `/api/pages`
+- REST API: http://localhost:3001/api/doctors, `/api/poradnie`, `/api/pages`
 - Frontend: http://localhost:3000
 
 In development Payload pushes schema changes to Postgres automatically (drizzle `push`), so no migrations are needed locally.

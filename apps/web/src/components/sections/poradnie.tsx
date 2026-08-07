@@ -3,30 +3,24 @@ import Link from 'next/link'
 import { Container } from '@/components/container'
 import { EmptyCmsHint } from '@/components/empty-cms-hint'
 import { SectionHeading } from '@/components/section-heading'
-import { ServiceCard } from '@/components/service-card'
+import { PoradnieCarousel } from '@/components/sections/poradnie-carousel'
 import { buttonVariants } from '@/components/ui/button'
-import { getServices } from '@/lib/api'
+import { getPoradnie } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
-export async function Clinics() {
-  const { docs: services } = await getServices(5)
+export async function Poradnie() {
+  const { docs: poradnie } = await getPoradnie()
 
   return (
     <section className="bg-secondary py-16">
       <Container>
         <SectionHeading className="mb-12">Nasze poradnie</SectionHeading>
 
-        {services.length === 0 ? (
+        {poradnie.length === 0 ? (
           <EmptyCmsHint>Nie dodano jeszcze żadnych poradni.</EmptyCmsHint>
         ) : (
           <>
-            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {services.map((service) => (
-                <li key={service.id}>
-                  <ServiceCard service={service} />
-                </li>
-              ))}
-            </ul>
+            <PoradnieCarousel poradnie={poradnie} />
 
             <div className="mt-12 flex justify-center">
               <Link

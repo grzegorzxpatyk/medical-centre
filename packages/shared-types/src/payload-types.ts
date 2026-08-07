@@ -70,7 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     doctors: Doctor;
-    services: Service;
+    poradnie: Poradnie;
     news: News;
     pages: Page;
     'payload-kv': PayloadKv;
@@ -83,7 +83,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     doctors: DoctorsSelect<false> | DoctorsSelect<true>;
-    services: ServicesSelect<false> | ServicesSelect<true>;
+    poradnie: PoradnieSelect<false> | PoradnieSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -199,9 +199,9 @@ export interface Doctor {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "services".
+ * via the `definition` "poradnie".
  */
-export interface Service {
+export interface Poradnie {
   id: number;
   title: string;
   slug: string;
@@ -344,8 +344,8 @@ export interface PayloadLockedDocument {
         value: number | Doctor;
       } | null)
     | ({
-        relationTo: 'services';
-        value: number | Service;
+        relationTo: 'poradnie';
+        value: number | Poradnie;
       } | null)
     | ({
         relationTo: 'news';
@@ -452,9 +452,9 @@ export interface DoctorsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "services_select".
+ * via the `definition` "poradnie_select".
  */
-export interface ServicesSelect<T extends boolean = true> {
+export interface PoradnieSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   icon?: T;
