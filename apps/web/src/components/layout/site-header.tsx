@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/sheet'
 import type { SiteData } from '@/lib/site-data'
 import { cn } from '@/lib/utils'
+import { LinkButton } from '../ui/link-button'
 
 function isActive(pathname: string, href: string) {
   return href === '/' ? pathname === '/' : pathname.startsWith(href)
@@ -74,7 +75,7 @@ export function SiteHeader({ data }: { data: SiteData }) {
                     active ? 'text-primary' : 'text-foreground hover:text-primary',
                     // sits flush on the header's bottom border
                     active &&
-                      'after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-primary',
+                    'after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-primary',
                   )}
                 >
                   {link.label}
@@ -84,13 +85,12 @@ export function SiteHeader({ data }: { data: SiteData }) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Button
+            <LinkButton
               size="lg"
-              className="hidden text-xs font-semibold tracking-wide uppercase sm:inline-flex"
-              render={<Link href="/umow-wizyte" />}
+              href="/umow-wizyte"
             >
               Umów wizytę
-            </Button>
+            </LinkButton>
 
             <Sheet>
               <SheetTrigger
