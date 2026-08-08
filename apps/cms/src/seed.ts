@@ -7,11 +7,18 @@ import { getPayload } from 'payload'
  *
  * Run with `pnpm --filter @medical-centre/cms seed`.
  *
- * This is a declarative sync rather than a one-shot insert: poradnie are keyed
- * by slug and personnel by name, so re-running updates what changed and removes
- * anything not listed below (which is how the demo content this project shipped
- * with gets cleared out). `news`, `pages` and `media` are editor territory and
- * are left untouched.
+ * Two modes, because this runs on every production deploy:
+ *
+ * - default — *bootstrap*. Anything already present is left alone, so
+ *   redeploying never reverts what an editor changed in the admin panel.
+ * - `SEED_FORCE=1` — *sync*. Re-asserts every value below, and deletes any
+ *   poradnia or person not listed here. This is what clears out demo content.
+ *
+ * `SEED_FORCE` is an env var rather than a CLI flag because `payload run`
+ * rebuilds process.argv from positional arguments only, so flags never
+ * reach this script.
+ *
+ * `news`, `pages` and `media` are editor territory and are never touched.
  */
 
 type RichText = NonNullable<Poradnia['content']>
@@ -140,57 +147,83 @@ const personel = [
   { name: 'Wojciech Partyka', specialty: 'Wsparcie techniczne, członek zarządu' },
 ]
 
+const force = process.env.SEED_FORCE === '1' || process.env.SEED_FORCE === 'true'
+
 const payload = await getPayload({ config })
 
-await payload.updateGlobal({ slug: 'dane-ogolne', data: daneOgolne })
-payload.logger.info('Zapisano dane ogólne')
+payload.logger.info(force ? 'Tryb: SEED_FORCE (nadpisuję i usuwam nadmiarowe)' : 'Tryb: bootstrap (pomijam to, co już istnieje)')
 
-for (const [index, poradnia] of poradnie.entries()) {
-  const existing = await payload.find({
+// An unsaved global still resolves, from the field defaults, but carries no id
+const savedGlobal = (await payload.findGlobal({ slug: 'dane-ogolne' })) as { id?: number }
+
+if (force || !savedGlobal.id) {
+  await payload.updateGlobal({ slug: 'dane-ogolne', data: daneOgolne })
+  payload.logger.info('Zapisano dane ogólne')
+} else {
+  payload.logger.info('Dane ogólne już zapisane — pomijam')
+}
+
+const { totalDocs: poradnieCount } = await payload.count({ collection: 'poradnie' })
+
+if (force || poradnieCount === 0) {
+  for (const [index, poradnia] of poradnie.entries()) {
+    const existing = await payload.find({
+      collection: 'poradnie',
+      where: { slug: { equals: poradnia.slug } },
+      limit: 1,
+    })
+
+    // Spread strips the `as const` readonly modifiers Payload's data type rejects
+    const data = { ...poradnia, content: poradnia.content }
+
+    if (existing.docs[0]) {
+      await payload.update({ collection: 'poradnie', id: existing.docs[0].id, data })
+    } else {
+      await payload.create({ collection: 'poradnie', data })
+    }
+    payload.logger.info(`Poradnia ${index + 1}/${poradnie.length}: ${poradnia.title}`)
+  }
+} else {
+  payload.logger.info(`Poradnie już uzupełnione (${poradnieCount}) — pomijam`)
+}
+
+const { totalDocs: personelCount } = await payload.count({ collection: 'doctors' })
+
+if (force || personelCount === 0) {
+  for (const [index, osoba] of personel.entries()) {
+    const existing = await payload.find({
+      collection: 'doctors',
+      where: { name: { equals: osoba.name } },
+      limit: 1,
+    })
+
+    const data = { ...osoba, order: index + 1 }
+
+    if (existing.docs[0]) {
+      await payload.update({ collection: 'doctors', id: existing.docs[0].id, data })
+    } else {
+      await payload.create({ collection: 'doctors', data })
+    }
+    payload.logger.info(`Personel ${index + 1}/${personel.length}: ${osoba.name}`)
+  }
+} else {
+  payload.logger.info(`Personel już uzupełniony (${personelCount}) — pomijam`)
+}
+
+// Pruning is destructive, so it stays behind the explicit flag
+if (force) {
+  const removedPoradnie = await payload.delete({
     collection: 'poradnie',
-    where: { slug: { equals: poradnia.slug } },
-    limit: 1,
+    where: { slug: { not_in: poradnie.map((p) => p.slug) } },
   })
-
-  // Spread strips the `as const` readonly modifiers Payload's data type rejects
-  const data = { ...poradnia, content: poradnia.content }
-
-  if (existing.docs[0]) {
-    await payload.update({ collection: 'poradnie', id: existing.docs[0].id, data })
-  } else {
-    await payload.create({ collection: 'poradnie', data })
-  }
-  payload.logger.info(`Poradnia ${index + 1}/${poradnie.length}: ${poradnia.title}`)
-}
-
-for (const [index, osoba] of personel.entries()) {
-  const existing = await payload.find({
+  const removedPersonel = await payload.delete({
     collection: 'doctors',
-    where: { name: { equals: osoba.name } },
-    limit: 1,
+    where: { name: { not_in: personel.map((p) => p.name) } },
   })
 
-  const data = { ...osoba, order: index + 1 }
-
-  if (existing.docs[0]) {
-    await payload.update({ collection: 'doctors', id: existing.docs[0].id, data })
-  } else {
-    await payload.create({ collection: 'doctors', data })
-  }
-  payload.logger.info(`Personel ${index + 1}/${personel.length}: ${osoba.name}`)
+  for (const doc of removedPoradnie.docs) payload.logger.info(`Usunięto poradnię: ${doc.title}`)
+  for (const doc of removedPersonel.docs) payload.logger.info(`Usunięto osobę: ${doc.name}`)
 }
-
-const removedPoradnie = await payload.delete({
-  collection: 'poradnie',
-  where: { slug: { not_in: poradnie.map((p) => p.slug) } },
-})
-const removedPersonel = await payload.delete({
-  collection: 'doctors',
-  where: { name: { not_in: personel.map((p) => p.name) } },
-})
-
-for (const doc of removedPoradnie.docs) payload.logger.info(`Usunięto poradnię: ${doc.title}`)
-for (const doc of removedPersonel.docs) payload.logger.info(`Usunięto osobę: ${doc.name}`)
 
 payload.logger.info('Seed zakończony')
 process.exit(0)

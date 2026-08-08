@@ -19,17 +19,40 @@ services:
       timeout: 5s
       retries: 10
 
+  # Builds the image that cms-seed also runs — it is the full build stage
+  # (~2 GB), so building it twice would be pure waste.
   cms-migrate:
     build:
       context: .
       dockerfile: apps/cms/Dockerfile
       target: migrator
+    image: medical-centre-prod-cms-tools
+    command: ['pnpm', 'payload', 'migrate']
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-payload}:${POSTGRES_PASSWORD:-payload}@postgres:5432/${POSTGRES_DB:-medical_centre}
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in .env}
     depends_on:
       postgres:
         condition: service_healthy
+    restart: 'no'
+
+  # Bootstraps the practice's content. Safe to run on every deploy: it skips
+  # anything already in the database, so it never reverts an editor's work.
+  # Set SEED_FORCE=1 to re-assert the canonical content and drop extras.
+  # Reuses the image cms-migrate builds — deliberately no build section of its
+  # own, because two services building the same tag race on the image export.
+  cms-seed:
+    image: medical-centre-prod-cms-tools
+    command: ['pnpm', 'seed']
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-payload}:${POSTGRES_PASSWORD:-payload}@postgres:5432/${POSTGRES_DB:-medical_centre}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in .env}
+      SEED_FORCE: ${SEED_FORCE:-0}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      cms-migrate:
+        condition: service_completed_successfully
     restart: 'no'
 
   cms:
@@ -49,7 +72,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      cms-migrate:
+      cms-seed:
         condition: service_completed_successfully
 
   web:
@@ -63,6 +86,8 @@ services:
     environment:
       # Server-side requests go over the docker network
       CMS_URL: http://cms:3001
+      # Defaults to "not indexable" so preview deploys never leak into Google
+      SITE_INDEXABLE: ${SITE_INDEXABLE:-false}
     ports:
       - '3000:3000'
     depends_on:

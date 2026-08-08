@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { SiteHeader } from '@/components/layout/site-header'
+import { isIndexable } from '@/lib/seo'
 import { getSiteData } from '@/lib/site-data'
 import { cn } from '@/lib/utils'
 
@@ -22,6 +23,9 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${name}`,
     },
     description,
+    // robots.txt alone does not stop indexing of pages reached via a direct
+    // link, so preview builds also carry the meta tag
+    robots: isIndexable() ? undefined : { index: false, follow: false },
   }
 }
 

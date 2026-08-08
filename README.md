@@ -68,8 +68,24 @@ Each app has a multi-stage `Dockerfile` using `turbo prune` and Next.js standalo
 
 1. `postgres` — PostgreSQL 17 with a named volume
 2. `cms-migrate` — one-shot job running `payload migrate` (production does **not** auto-push schema)
-3. `cms` — slim standalone runtime, media uploads on a named volume
-4. `web` — slim standalone runtime, reaches the CMS over the docker network
+3. `cms-seed` — one-shot job loading the practice's content; skips anything already
+   present, so it is safe on every deploy. `SEED_FORCE=1` re-asserts the canonical
+   content and deletes poradnie/personnel not listed in `seed.ts`.
+4. `cms` — slim standalone runtime, media uploads on a named volume
+5. `web` — slim standalone runtime, reaches the CMS over the docker network
+
+`cms-migrate` and `cms-seed` share one image (`medical-centre-prod-cms-tools`), which
+is the full ~2 GB build stage — worth knowing if you push images to a registry rather
+than building on the host.
+
+Two env vars matter for a preview deploy:
+
+- `SITE_INDEXABLE` (default `false`) — serves a `Disallow: /` robots.txt and a
+  `noindex` meta tag. Read at runtime, so promoting a preview to production needs no
+  rebuild.
+- `NEXT_PUBLIC_CMS_URL` — inlined into the web bundle **at build time** and also used
+  for `next/image` remote patterns, so changing it requires rebuilding the `web`
+  image, not just restarting it.
 
 Before the first production deploy, create the initial migration (with dev Postgres running):
 
