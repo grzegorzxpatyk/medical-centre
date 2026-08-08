@@ -20,7 +20,7 @@ export async function CtaBand() {
           <div>
             <h2 className="font-heading text-xl font-bold">Umów wizytę już dziś</h2>
             <p className="mt-1 text-sm text-primary-foreground/80">
-              Rejestracja telefoniczna lub online.
+              Rejestracja wyłącznie telefoniczna.
             </p>
           </div>
           <Link

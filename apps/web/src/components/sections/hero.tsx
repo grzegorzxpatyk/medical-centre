@@ -33,7 +33,8 @@ export async function Hero() {
           </h1>
 
           <p className="mt-6 max-w-md text-base text-muted-foreground">
-            Zapewniamy kompleksową opiekę medyczną na najwyższym poziomie.
+            Opieka lekarza rodzinnego, pediatry i pielęgniarki środowiskowej dla mieszkańców
+            Zielonek i okolic.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
@@ -45,7 +46,7 @@ export async function Hero() {
               )}
             >
               <CalendarDays />
-              Umów wizytę online
+              Umów wizytę
             </Link>
 
             <a

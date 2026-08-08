@@ -23,7 +23,13 @@ cp apps/web/.env.example apps/web/.env
 pnpm install
 docker compose up -d        # PostgreSQL only
 pnpm dev                    # both apps via turbo
+
+pnpm --filter @medical-centre/cms seed   # load the practice's content
 ```
+
+`seed` is a declarative sync (`apps/cms/src/seed.ts`): it writes the `dane-ogolne`
+global, the poradnie and the personnel list, and removes any poradnia or person
+not listed in the script. `news`, `pages` and `media` are left to editors.
 
 - Admin panel: http://localhost:3001/admin (create the first user on first visit)
 - REST API: http://localhost:3001/api/doctors, `/api/poradnie`, `/api/pages`
@@ -51,7 +57,7 @@ pnpm generate:types
 The frontend imports the results with full type safety and **zero Payload dependency**:
 
 ```ts
-import type { Doctor, Service, Page } from '@medical-centre/shared-types'
+import type { Doctor, Poradnia, Page } from '@medical-centre/shared-types'
 ```
 
 See `apps/web/src/lib/api.ts` for a typed REST client using them. The generated file is committed so the frontend always builds.
@@ -86,3 +92,4 @@ docker compose -f docker-compose.prod.yml up --build -d
 | `pnpm build` | Build both apps |
 | `pnpm check-types` | Type-check all packages |
 | `pnpm generate:types` | Regenerate shared Payload types |
+| `pnpm --filter @medical-centre/cms seed` | Load the practice's content (contact details, poradnie, personnel) into the database |

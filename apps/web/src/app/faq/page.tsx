@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 const faq = (phone: string, openingHours: string) => [
   {
     question: 'Jak umówić się na wizytę?',
-    answer: `Wizytę umówisz telefonicznie pod numerem ${phone} w godzinach ${openingHours} lub przez e-Rejestrację.`,
+    answer: `Nie prowadzimy rejestracji internetowej. Wizytę umówisz telefonicznie pod numerem ${phone} w godzinach ${openingHours} lub osobiście w rejestracji.`,
   },
   {
     question: 'Czy muszę złożyć deklarację POZ?',

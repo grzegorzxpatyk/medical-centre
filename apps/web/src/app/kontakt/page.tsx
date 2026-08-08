@@ -17,15 +17,19 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function KontaktPage() {
   const { address, phone, phoneHref, email, openingHours } = await getSiteData()
 
+  // `email` is optional in the CMS — the practice publishes a phone number only
   const details = [
     { icon: MapPin, label: 'Adres', value: address },
-    { icon: Phone, label: 'Telefon', value: phone, href: phoneHref },
-    { icon: Mail, label: 'E-mail', value: email, href: `mailto:${email}` },
+    { icon: Phone, label: 'Rejestracja telefoniczna', value: phone, href: phoneHref },
+    { icon: Mail, label: 'E-mail', value: email, href: email && `mailto:${email}` },
     { icon: Clock, label: 'Godziny otwarcia', value: openingHours },
-  ]
+  ].filter((detail) => detail.value)
 
   return (
-    <PageShell title="Kontakt" lead="Jesteśmy do Twojej dyspozycji.">
+    <PageShell
+      title="Kontakt"
+      lead="Jesteśmy do Twojej dyspozycji. Wizyty umawiamy wyłącznie telefonicznie."
+    >
       <ul className="grid max-w-4xl gap-5 sm:grid-cols-2">
         {details.map(({ icon: Icon, label, value, href }) => (
           <li key={label}>

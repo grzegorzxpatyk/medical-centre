@@ -8,8 +8,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { getDoctors, mediaAlt, mediaUrl } from '@/lib/api'
 
 export const metadata: Metadata = {
-  title: 'Lekarze',
-  description: 'Poznaj zespół specjalistów naszego ośrodka zdrowia.',
+  title: 'Personel',
+  description: 'Poznaj zespół naszej przychodni — lekarzy, pielęgniarki i rejestrację.',
 }
 
 export default async function LekarzePage() {
@@ -17,11 +17,11 @@ export default async function LekarzePage() {
 
   return (
     <PageShell
-      title="Nasi lekarze"
-      lead="Nasz zespół to wykwalifikowani specjaliści z wieloletnim doświadczeniem."
+      title="Nasz personel"
+      lead="Lekarze, pielęgniarki i pracownicy, których spotkasz w naszej przychodni."
     >
       {doctors.length === 0 ? (
-        <EmptyCmsHint>Nie dodano jeszcze żadnych lekarzy.</EmptyCmsHint>
+        <EmptyCmsHint>Nie dodano jeszcze żadnych osób.</EmptyCmsHint>
       ) : (
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {doctors.map((doctor) => {

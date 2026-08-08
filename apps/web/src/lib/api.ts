@@ -81,7 +81,7 @@ async function fetchGlobalFromCms<T>(path: string): Promise<T | null> {
 
 export const getDaneOgolne = () => fetchGlobalFromCms<DaneOgolne>('/dane-ogolne')
 
-export const getDoctors = () => fetchFromCms<Doctor>('/doctors?limit=100')
+export const getDoctors = () => fetchFromCms<Doctor>('/doctors?limit=100&sort=order')
 
 export const getPoradnie = (limit = 100) =>
   fetchFromCms<Poradnia>(`/poradnie?limit=${limit}&sort=order`)

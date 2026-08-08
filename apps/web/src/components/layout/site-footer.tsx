@@ -66,15 +66,17 @@ export function SiteFooter({ data }: { data: SiteData }) {
                 <MapPin className="mt-0.5 size-4 shrink-0" />
                 {data.address}
               </li>
-              <li className="flex items-start gap-3">
-                <Mail className="mt-0.5 size-4 shrink-0" />
-                <a
-                  href={`mailto:${data.email}`}
-                  className="transition-colors hover:text-background"
-                >
-                  {data.email}
-                </a>
-              </li>
+              {data.email && (
+                <li className="flex items-start gap-3">
+                  <Mail className="mt-0.5 size-4 shrink-0" />
+                  <a
+                    href={`mailto:${data.email}`}
+                    className="transition-colors hover:text-background"
+                  >
+                    {data.email}
+                  </a>
+                </li>
+              )}
               <li className="flex items-start gap-3">
                 <Phone className="mt-0.5 size-4 shrink-0" />
                 <a href={data.phoneHref} className="transition-colors hover:text-background">
@@ -93,7 +95,7 @@ export function SiteFooter({ data }: { data: SiteData }) {
 
         <div className="flex flex-col items-center justify-between gap-3 pt-6 text-xs text-background/60 sm:flex-row">
           <p>
-            © {new Date().getFullYear()} {data.name}. Wszelkie prawa zastrzeżone.
+            © {new Date().getFullYear()} {data.legalName}. Wszelkie prawa zastrzeżone.
           </p>
           <Link href="/polityka-prywatnosci" className="transition-colors hover:text-background">
             Polityka prywatności

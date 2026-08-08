@@ -44,8 +44,9 @@ const navField = (
  * apps/web/src/lib/site-config.ts. A global rather than a collection because
  * exactly one document is meaningful.
  *
- * The defaults reproduce the values the site shipped with, so a freshly seeded
- * database renders the same page as before an editor touches anything.
+ * The defaults carry the practice's real details, so a freshly created database
+ * renders a correct site before an editor touches anything. `src/seed.ts` writes
+ * the same values into an existing database.
  */
 export const DaneOgolne: GlobalConfig = {
   slug: 'dane-ogolne',
@@ -58,16 +59,24 @@ export const DaneOgolne: GlobalConfig = {
       name: 'name',
       type: 'text',
       required: true,
-      defaultValue: 'Ośrodek Zdrowia',
+      defaultValue: 'Gabinet Lekarza Rodzinnego Zielonki',
       admin: {
-        description: 'Shown in the logo, page titles and the footer copyright line',
+        description: 'Trading name — shown in the logo and page titles. Keep it short enough to fit the header.',
+      },
+    },
+    {
+      name: 'legalName',
+      type: 'text',
+      admin: {
+        description:
+          'Full registered name, used for the footer copyright line. Falls back to the name above when empty.',
       },
     },
     {
       name: 'tagline',
       type: 'text',
       required: true,
-      defaultValue: 'Twoje zdrowie w dobrych rękach',
+      defaultValue: 'Podstawowa opieka zdrowotna',
       admin: {
         description: 'Sits under the name in the logo',
       },
@@ -76,7 +85,8 @@ export const DaneOgolne: GlobalConfig = {
       name: 'description',
       type: 'textarea',
       required: true,
-      defaultValue: 'Zapewniamy kompleksową opiekę medyczną dla Ciebie i Twojej rodziny.',
+      defaultValue:
+        'Zapewniamy opiekę lekarza rodzinnego, pediatry i radiologa oraz opiekę pielęgniarki środowiskowej mieszkańcom Zielonek i okolic.',
       admin: {
         description: 'Footer intro paragraph, and the default meta description',
       },
@@ -85,16 +95,16 @@ export const DaneOgolne: GlobalConfig = {
       name: 'openingHours',
       type: 'text',
       required: true,
-      defaultValue: 'Pon - Pt: 7:00 - 18:00',
+      defaultValue: 'Pon - Pt: 8:00 - 18:00',
       admin: {
-        description: 'Rendered verbatim, e.g. "Pon - Pt: 7:00 - 18:00"',
+        description: 'Rendered verbatim, e.g. "Pon - Pt: 8:00 - 18:00"',
       },
     },
     {
       name: 'phone',
       type: 'text',
       required: true,
-      defaultValue: '123 456 789',
+      defaultValue: '12 285 01 12',
       admin: {
         description:
           'Display format — spaces are fine. The tel: link is derived from it, assuming a Polish number when no country code is given.',
@@ -103,14 +113,15 @@ export const DaneOgolne: GlobalConfig = {
     {
       name: 'email',
       type: 'email',
-      required: true,
-      defaultValue: 'rejestracja@osrodekzdrowia.pl',
+      admin: {
+        description: 'Optional — the practice registers patients by phone. Left empty, it is hidden across the site.',
+      },
     },
     {
       name: 'address',
       type: 'text',
       required: true,
-      defaultValue: 'ul. Zdrowa 1, 00-000 Twoje Miasto',
+      defaultValue: 'ul. Galicyjska 15, 32-087 Zielonki',
     },
     {
       name: 'social',
@@ -122,18 +133,15 @@ export const DaneOgolne: GlobalConfig = {
         {
           name: 'facebook',
           type: 'text',
-          defaultValue: 'https://facebook.com',
         },
         {
           name: 'instagram',
           type: 'text',
-          defaultValue: 'https://instagram.com',
         },
         {
           name: 'maps',
           type: 'text',
           label: 'Google Maps',
-          defaultValue: 'https://maps.google.com',
         },
       ],
     },
@@ -145,24 +153,17 @@ export const DaneOgolne: GlobalConfig = {
         { label: 'Strona główna', href: '/' },
         { label: 'O nas', href: '/o-nas' },
         { label: 'Poradnie', href: '/poradnie' },
-        { label: 'Lekarze', href: '/lekarze' },
+        { label: 'Personel', href: '/lekarze' },
         { label: 'Aktualności', href: '/aktualnosci' },
         { label: 'Kontakt', href: '/kontakt' },
       ],
     ),
-    navField(
-      'topBarNav',
-      'Top bar navigation',
-      'Utility links in the blue bar above the header',
-      [
-        { label: 'Deklaracja POZ', href: '/deklaracja-poz' },
-        { label: 'Wyniki badań', href: '/wyniki-badan' },
-        { label: 'e-Rejestracja', href: '/e-rejestracja' },
-      ],
-    ),
+    navField('topBarNav', 'Top bar navigation', 'Utility links in the blue bar above the header', [
+      { label: 'Deklaracja POZ', href: '/deklaracja-poz' },
+      { label: 'Wyniki badań', href: '/wyniki-badan' },
+    ]),
     navField('patientNav', 'Patient navigation', 'Footer column "Dla pacjenta"', [
       { label: 'Deklaracja POZ', href: '/deklaracja-poz' },
-      { label: 'e-Rejestracja', href: '/e-rejestracja' },
       { label: 'Wyniki badań', href: '/wyniki-badan' },
       { label: 'Dokumenty do pobrania', href: '/dokumenty' },
       { label: 'FAQ', href: '/faq' },

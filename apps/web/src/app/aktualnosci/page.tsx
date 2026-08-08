@@ -8,14 +8,14 @@ import { getNews } from '@/lib/api'
 
 export const metadata: Metadata = {
   title: 'Aktualności',
-  description: 'Bieżące informacje i komunikaty naszego ośrodka zdrowia.',
+  description: 'Bieżące informacje i komunikaty naszej przychodni.',
 }
 
 export default async function AktualnosciPage() {
   const { docs: news } = await getNews(100)
 
   return (
-    <PageShell title="Aktualności" lead="Bieżące informacje i komunikaty naszego ośrodka.">
+    <PageShell title="Aktualności" lead="Bieżące informacje i komunikaty naszej przychodni.">
       {news.length === 0 ? (
         <EmptyCmsHint>Brak aktualności.</EmptyCmsHint>
       ) : (

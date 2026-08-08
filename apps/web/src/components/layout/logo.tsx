@@ -35,7 +35,8 @@ export function Logo({ name, tagline, variant = 'light', className, asLink = tru
   const content = (
     <>
       <HeartMark variant={variant} />
-      <span className="flex flex-col leading-none">
+      {/* Practice names run long, so the name is allowed to wrap onto a second line */}
+      <span className="flex max-w-56 flex-col leading-tight">
         <span
           className={cn(
             'font-heading text-base font-bold tracking-tight',

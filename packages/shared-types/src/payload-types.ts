@@ -182,6 +182,10 @@ export interface Doctor {
   id: number;
   name: string;
   specialty: string;
+  /**
+   * Lower numbers appear first
+   */
+  order?: number | null;
   photo?: (number | null) | Media;
   bio?: {
     root: {
@@ -449,6 +453,7 @@ export interface MediaSelect<T extends boolean = true> {
 export interface DoctorsSelect<T extends boolean = true> {
   name?: T;
   specialty?: T;
+  order?: T;
   photo?: T;
   bio?: T;
   updatedAt?: T;
@@ -541,9 +546,13 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface DaneOgolne {
   id: number;
   /**
-   * Shown in the logo, page titles and the footer copyright line
+   * Trading name — shown in the logo and page titles. Keep it short enough to fit the header.
    */
   name: string;
+  /**
+   * Full registered name, used for the footer copyright line. Falls back to the name above when empty.
+   */
+  legalName?: string | null;
   /**
    * Sits under the name in the logo
    */
@@ -553,14 +562,17 @@ export interface DaneOgolne {
    */
   description: string;
   /**
-   * Rendered verbatim, e.g. "Pon - Pt: 7:00 - 18:00"
+   * Rendered verbatim, e.g. "Pon - Pt: 8:00 - 18:00"
    */
   openingHours: string;
   /**
    * Display format — spaces are fine. The tel: link is derived from it, assuming a Polish number when no country code is given.
    */
   phone: string;
-  email: string;
+  /**
+   * Optional — the practice registers patients by phone. Left empty, it is hidden across the site.
+   */
+  email?: string | null;
   address: string;
   /**
    * Leave a field empty to hide its icon
@@ -618,6 +630,7 @@ export interface DaneOgolne {
  */
 export interface DaneOgolneSelect<T extends boolean = true> {
   name?: T;
+  legalName?: T;
   tagline?: T;
   description?: T;
   openingHours?: T;

@@ -7,7 +7,7 @@ import { getPoradnie } from '@/lib/api'
 
 export const metadata: Metadata = {
   title: 'Poradnie',
-  description: 'Pełna lista poradni i specjalizacji dostępnych w naszym ośrodku.',
+  description: 'Pełna lista poradni i specjalizacji dostępnych w naszej przychodni.',
 }
 
 export default async function PoradniePage() {

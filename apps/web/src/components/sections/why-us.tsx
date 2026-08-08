@@ -48,7 +48,7 @@ export function WhyUs() {
 
         <Image
           src="/images/doctor-portrait.jpg"
-          alt="Lekarka Ośrodka Zdrowia"
+          alt="Lekarka naszej przychodni"
           width={420}
           height={520}
           sizes="(min-width: 1024px) 320px, 100vw"
