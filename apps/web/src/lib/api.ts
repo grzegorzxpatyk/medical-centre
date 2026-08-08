@@ -1,4 +1,4 @@
-import type { Doctor, Media, News, Page, Poradnia } from '@medical-centre/shared-types'
+import type { DaneOgolne, Doctor, Media, News, Page, Poradnia } from '@medical-centre/shared-types'
 
 const CMS_URL = process.env.CMS_URL ?? process.env.NEXT_PUBLIC_CMS_URL ?? 'http://localhost:3001'
 
@@ -59,6 +59,27 @@ async function fetchFromCms<T>(path: string): Promise<PaginatedDocs<T>> {
     return emptyResult<T>()
   }
 }
+
+/**
+ * Globals return the document itself rather than a paginated envelope, and
+ * there is no meaningful empty value — callers supply their own fallback.
+ */
+async function fetchGlobalFromCms<T>(path: string): Promise<T | null> {
+  try {
+    const res = await fetch(`${CMS_URL}/api/globals${path}`, {
+      next: { revalidate: 60 },
+    })
+    if (!res.ok) {
+      throw new Error(`CMS request failed: ${res.status} ${res.statusText}`)
+    }
+    return (await res.json()) as T
+  } catch (error) {
+    console.error(`Could not fetch ${path} from CMS at ${CMS_URL}:`, error)
+    return null
+  }
+}
+
+export const getDaneOgolne = () => fetchGlobalFromCms<DaneOgolne>('/dane-ogolne')
 
 export const getDoctors = () => fetchFromCms<Doctor>('/doctors?limit=100')
 

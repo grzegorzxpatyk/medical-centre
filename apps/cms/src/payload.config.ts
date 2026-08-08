@@ -12,6 +12,7 @@ import { News } from './collections/News'
 import { Pages } from './collections/Pages'
 import { Poradnie } from './collections/Poradnie'
 import { Users } from './collections/Users'
+import { DaneOgolne } from './globals/DaneOgolne'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -24,6 +25,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Doctors, Poradnie, News, Pages],
+  globals: [DaneOgolne],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({

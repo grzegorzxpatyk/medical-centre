@@ -7,17 +7,17 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { siteConfig } from '@/lib/site-config'
+import { getSiteData } from '@/lib/site-data'
 
 export const metadata: Metadata = {
   title: 'FAQ',
   description: 'Odpowiedzi na najczęściej zadawane pytania.',
 }
 
-const faq = [
+const faq = (phone: string, openingHours: string) => [
   {
     question: 'Jak umówić się na wizytę?',
-    answer: `Wizytę umówisz telefonicznie pod numerem ${siteConfig.phone} w godzinach ${siteConfig.openingHours} lub przez e-Rejestrację.`,
+    answer: `Wizytę umówisz telefonicznie pod numerem ${phone} w godzinach ${openingHours} lub przez e-Rejestrację.`,
   },
   {
     question: 'Czy muszę złożyć deklarację POZ?',
@@ -36,11 +36,13 @@ const faq = [
   },
 ]
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const { phone, openingHours } = await getSiteData()
+
   return (
     <PageShell title="FAQ" lead="Odpowiedzi na najczęściej zadawane pytania.">
       <Accordion className="max-w-3xl">
-        {faq.map((entry) => (
+        {faq(phone, openingHours).map((entry) => (
           <AccordionItem key={entry.question} value={entry.question}>
             <AccordionTrigger>{entry.question}</AccordionTrigger>
             <AccordionContent className="text-muted-foreground">{entry.answer}</AccordionContent>

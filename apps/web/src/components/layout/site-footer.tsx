@@ -5,9 +5,9 @@ import { Container } from '@/components/container'
 import { FacebookIcon, InstagramIcon } from '@/components/icons/social'
 import { Logo } from '@/components/layout/logo'
 import { Separator } from '@/components/ui/separator'
-import { mainNav, patientNav, siteConfig } from '@/lib/site-config'
+import type { NavLink, SiteData } from '@/lib/site-data'
 
-function FooterColumn({ title, links }: { title: string; links: typeof mainNav }) {
+function FooterColumn({ title, links }: { title: string; links: NavLink[] }) {
   return (
     <div>
       <h2 className="font-heading text-xs font-bold tracking-[0.12em] uppercase">{title}</h2>
@@ -24,73 +24,66 @@ function FooterColumn({ title, links }: { title: string; links: typeof mainNav }
   )
 }
 
-export function SiteFooter() {
+export function SiteFooter({ data }: { data: SiteData }) {
+  const { social } = data
+
+  const socialLinks = [
+    { href: social.facebook, label: 'Facebook', Icon: FacebookIcon },
+    { href: social.instagram, label: 'Instagram', Icon: InstagramIcon },
+    { href: social.maps, label: 'Mapa dojazdu', Icon: MapPin },
+  ].filter((link): link is typeof link & { href: string } => Boolean(link.href))
+
   return (
     <footer className="bg-foreground text-background">
       <Container className="py-14">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr]">
           <div>
-            <Logo variant="dark" />
-            <p className="mt-6 max-w-xs text-sm text-background/75">{siteConfig.description}</p>
+            <Logo name={data.name} tagline={data.tagline} variant="dark" />
+            <p className="mt-6 max-w-xs text-sm text-background/75">{data.description}</p>
             <div className="mt-6 flex items-center gap-4">
-              <a
-                href={siteConfig.social.facebook}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Facebook"
-                className="text-background/75 transition-colors hover:text-background"
-              >
-                <FacebookIcon className="size-4" />
-              </a>
-              <a
-                href={siteConfig.social.instagram}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Instagram"
-                className="text-background/75 transition-colors hover:text-background"
-              >
-                <InstagramIcon className="size-4" />
-              </a>
-              <a
-                href={siteConfig.social.maps}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Mapa dojazdu"
-                className="text-background/75 transition-colors hover:text-background"
-              >
-                <MapPin className="size-4" />
-              </a>
+              {socialLinks.map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={label}
+                  className="text-background/75 transition-colors hover:text-background"
+                >
+                  <Icon className="size-4" />
+                </a>
+              ))}
             </div>
           </div>
 
-          <FooterColumn title="Szybkie linki" links={mainNav} />
-          <FooterColumn title="Dla pacjenta" links={patientNav} />
+          <FooterColumn title="Szybkie linki" links={data.mainNav} />
+          <FooterColumn title="Dla pacjenta" links={data.patientNav} />
 
           <div>
             <h2 className="font-heading text-xs font-bold tracking-[0.12em] uppercase">Kontakt</h2>
             <ul className="mt-5 space-y-3.5 text-sm text-background/75">
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 size-4 shrink-0" />
-                {siteConfig.address}
+                {data.address}
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="mt-0.5 size-4 shrink-0" />
                 <a
-                  href={`mailto:${siteConfig.email}`}
+                  href={`mailto:${data.email}`}
                   className="transition-colors hover:text-background"
                 >
-                  {siteConfig.email}
+                  {data.email}
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <Phone className="mt-0.5 size-4 shrink-0" />
-                <a href={siteConfig.phoneHref} className="transition-colors hover:text-background">
-                  {siteConfig.phone}
+                <a href={data.phoneHref} className="transition-colors hover:text-background">
+                  {data.phone}
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <Clock className="mt-0.5 size-4 shrink-0" />
-                {siteConfig.openingHours}
+                {data.openingHours}
               </li>
             </ul>
           </div>
@@ -100,7 +93,7 @@ export function SiteFooter() {
 
         <div className="flex flex-col items-center justify-between gap-3 pt-6 text-xs text-background/60 sm:flex-row">
           <p>
-            © {new Date().getFullYear()} {siteConfig.name}. Wszelkie prawa zastrzeżone.
+            © {new Date().getFullYear()} {data.name}. Wszelkie prawa zastrzeżone.
           </p>
           <Link href="/polityka-prywatnosci" className="transition-colors hover:text-background">
             Polityka prywatności

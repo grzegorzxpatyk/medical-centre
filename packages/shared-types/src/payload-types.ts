@@ -95,8 +95,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'dane-ogolne': DaneOgolne;
+  };
+  globalsSelect: {
+    'dane-ogolne': DaneOgolneSelect<false> | DaneOgolneSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -529,6 +533,128 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dane-ogolne".
+ */
+export interface DaneOgolne {
+  id: number;
+  /**
+   * Shown in the logo, page titles and the footer copyright line
+   */
+  name: string;
+  /**
+   * Sits under the name in the logo
+   */
+  tagline: string;
+  /**
+   * Footer intro paragraph, and the default meta description
+   */
+  description: string;
+  /**
+   * Rendered verbatim, e.g. "Pon - Pt: 7:00 - 18:00"
+   */
+  openingHours: string;
+  /**
+   * Display format — spaces are fine. The tel: link is derived from it, assuming a Polish number when no country code is given.
+   */
+  phone: string;
+  email: string;
+  address: string;
+  /**
+   * Leave a field empty to hide its icon
+   */
+  social?: {
+    facebook?: string | null;
+    instagram?: string | null;
+    maps?: string | null;
+  };
+  /**
+   * Header menu, also reused as the footer "Szybkie linki" column
+   */
+  mainNav?:
+    | {
+        label: string;
+        /**
+         * Path relative to the site root, e.g. /kontakt
+         */
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Utility links in the blue bar above the header
+   */
+  topBarNav?:
+    | {
+        label: string;
+        /**
+         * Path relative to the site root, e.g. /kontakt
+         */
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Footer column "Dla pacjenta"
+   */
+  patientNav?:
+    | {
+        label: string;
+        /**
+         * Path relative to the site root, e.g. /kontakt
+         */
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dane-ogolne_select".
+ */
+export interface DaneOgolneSelect<T extends boolean = true> {
+  name?: T;
+  tagline?: T;
+  description?: T;
+  openingHours?: T;
+  phone?: T;
+  email?: T;
+  address?: T;
+  social?:
+    | T
+    | {
+        facebook?: T;
+        instagram?: T;
+        maps?: T;
+      };
+  mainNav?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  topBarNav?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  patientNav?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

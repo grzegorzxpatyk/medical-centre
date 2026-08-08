@@ -3,21 +3,27 @@ import { Clock, Mail, MapPin, Phone } from 'lucide-react'
 
 import { PageShell } from '@/components/page-shell'
 import { Card, CardContent } from '@/components/ui/card'
-import { siteConfig } from '@/lib/site-config'
+import { getSiteData } from '@/lib/site-data'
 
-export const metadata: Metadata = {
-  title: 'Kontakt',
-  description: `Skontaktuj się z nami — ${siteConfig.address}, tel. ${siteConfig.phone}.`,
+export async function generateMetadata(): Promise<Metadata> {
+  const { address, phone } = await getSiteData()
+
+  return {
+    title: 'Kontakt',
+    description: `Skontaktuj się z nami — ${address}, tel. ${phone}.`,
+  }
 }
 
-const details = [
-  { icon: MapPin, label: 'Adres', value: siteConfig.address },
-  { icon: Phone, label: 'Telefon', value: siteConfig.phone, href: siteConfig.phoneHref },
-  { icon: Mail, label: 'E-mail', value: siteConfig.email, href: `mailto:${siteConfig.email}` },
-  { icon: Clock, label: 'Godziny otwarcia', value: siteConfig.openingHours },
-]
+export default async function KontaktPage() {
+  const { address, phone, phoneHref, email, openingHours } = await getSiteData()
 
-export default function KontaktPage() {
+  const details = [
+    { icon: MapPin, label: 'Adres', value: address },
+    { icon: Phone, label: 'Telefon', value: phone, href: phoneHref },
+    { icon: Mail, label: 'E-mail', value: email, href: `mailto:${email}` },
+    { icon: Clock, label: 'Godziny otwarcia', value: openingHours },
+  ]
+
   return (
     <PageShell title="Kontakt" lead="Jesteśmy do Twojej dyspozycji.">
       <ul className="grid max-w-4xl gap-5 sm:grid-cols-2">

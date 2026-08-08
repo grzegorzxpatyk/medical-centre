@@ -1,9 +1,10 @@
 import Link from 'next/link'
 
-import { siteConfig } from '@/lib/site-config'
 import { cn } from '@/lib/utils'
 
 interface LogoProps {
+  name: string
+  tagline: string
   /** `light` sits on white surfaces, `dark` on the navy footer */
   variant?: 'light' | 'dark'
   className?: string
@@ -30,7 +31,7 @@ function HeartMark({ variant }: { variant: 'light' | 'dark' }) {
   )
 }
 
-export function Logo({ variant = 'light', className, asLink = true }: LogoProps) {
+export function Logo({ name, tagline, variant = 'light', className, asLink = true }: LogoProps) {
   const content = (
     <>
       <HeartMark variant={variant} />
@@ -41,7 +42,7 @@ export function Logo({ variant = 'light', className, asLink = true }: LogoProps)
             variant === 'light' ? 'text-foreground' : 'text-background',
           )}
         >
-          {siteConfig.name.toUpperCase()}
+          {name.toUpperCase()}
         </span>
         <span
           className={cn(
@@ -49,7 +50,7 @@ export function Logo({ variant = 'light', className, asLink = true }: LogoProps)
             variant === 'light' ? 'text-muted-foreground' : 'text-background/70',
           )}
         >
-          {siteConfig.tagline}
+          {tagline}
         </span>
       </span>
     </>
@@ -62,7 +63,7 @@ export function Logo({ variant = 'light', className, asLink = true }: LogoProps)
   }
 
   return (
-    <Link href="/" className={classes} aria-label={siteConfig.name}>
+    <Link href="/" className={classes} aria-label={name}>
       {content}
     </Link>
   )

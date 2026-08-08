@@ -4,10 +4,12 @@ import { CalendarDays, Phone } from 'lucide-react'
 
 import { Container } from '@/components/container'
 import { buttonVariants } from '@/components/ui/button'
-import { siteConfig } from '@/lib/site-config'
+import { getSiteData } from '@/lib/site-data'
 import { cn } from '@/lib/utils'
 
-export function Hero() {
+export async function Hero() {
+  const { phone, phoneHref } = await getSiteData()
+
   return (
     <section className="relative overflow-hidden bg-secondary">
       {/* Photo bleeds off the right edge and fades into the tinted band */}
@@ -47,11 +49,11 @@ export function Hero() {
             </Link>
 
             <a
-              href={siteConfig.phoneHref}
+              href={phoneHref}
               className="flex items-center gap-3 text-lg font-bold text-primary transition-opacity hover:opacity-80"
             >
               <Phone className="size-5" />
-              {siteConfig.phone}
+              {phone}
             </a>
           </div>
         </div>

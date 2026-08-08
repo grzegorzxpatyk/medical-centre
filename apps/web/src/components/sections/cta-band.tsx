@@ -4,10 +4,12 @@ import { CalendarDays, Phone } from 'lucide-react'
 import { Container } from '@/components/container'
 import { buttonVariants } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { siteConfig } from '@/lib/site-config'
+import { getSiteData } from '@/lib/site-data'
 import { cn } from '@/lib/utils'
 
-export function CtaBand() {
+export async function CtaBand() {
+  const { phone, phoneHref } = await getSiteData()
+
   return (
     <section className="bg-primary py-10 text-primary-foreground">
       <Container className="flex flex-col items-center gap-8 lg:flex-row lg:justify-between">
@@ -45,10 +47,10 @@ export function CtaBand() {
             </p>
           </div>
           <a
-            href={siteConfig.phoneHref}
+            href={phoneHref}
             className="text-xl font-bold transition-opacity hover:opacity-80 sm:ml-6"
           >
-            {siteConfig.phone}
+            {phone}
           </a>
         </div>
       </Container>

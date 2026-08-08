@@ -16,15 +16,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { mainNav, siteConfig, topBarNav } from '@/lib/site-config'
+import type { SiteData } from '@/lib/site-data'
 import { cn } from '@/lib/utils'
 
 function isActive(pathname: string, href: string) {
   return href === '/' ? pathname === '/' : pathname.startsWith(href)
 }
 
-export function SiteHeader() {
+export function SiteHeader({ data }: { data: SiteData }) {
   const pathname = usePathname()
+  const { mainNav, topBarNav, social } = data
 
   return (
     <header>
@@ -33,11 +34,11 @@ export function SiteHeader() {
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-2">
               <Clock className="size-3.5 opacity-80" />
-              {siteConfig.openingHours}
+              {data.openingHours}
             </span>
-            <a href={siteConfig.phoneHref} className="hidden items-center gap-2 sm:flex">
+            <a href={data.phoneHref} className="hidden items-center gap-2 sm:flex">
               <Phone className="size-3.5 opacity-80" />
-              Rejestracja: {siteConfig.phone}
+              Rejestracja: {data.phone}
             </a>
           </div>
 
@@ -47,21 +48,18 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
-            <a
-              href={siteConfig.social.facebook}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Facebook"
-            >
-              <FacebookIcon className="size-3.5" />
-            </a>
+            {social.facebook && (
+              <a href={social.facebook} target="_blank" rel="noreferrer" aria-label="Facebook">
+                <FacebookIcon className="size-3.5" />
+              </a>
+            )}
           </div>
         </Container>
       </div>
 
       <div className="border-b bg-card">
         <Container className="flex h-20 items-center justify-between gap-6">
-          <Logo />
+          <Logo name={data.name} tagline={data.tagline} />
 
           <nav className="hidden h-full items-center gap-7 lg:flex">
             {mainNav.map((link) => {
@@ -104,7 +102,7 @@ export function SiteHeader() {
               <SheetContent side="right" className="w-4/5">
                 <SheetHeader>
                   <SheetTitle className="sr-only">Menu</SheetTitle>
-                  <Logo asLink={false} />
+                  <Logo name={data.name} tagline={data.tagline} asLink={false} />
                 </SheetHeader>
                 <nav className="flex flex-col gap-1 px-6 pb-6">
                   {[...mainNav, ...topBarNav].map((link) => (
