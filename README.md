@@ -66,39 +66,83 @@ See `apps/web/src/lib/api.ts` for a typed REST client using them. The generated 
 
 Each app has a multi-stage `Dockerfile` using `turbo prune` and Next.js standalone output. `docker-compose.prod.yml` orchestrates:
 
-1. `postgres` — PostgreSQL 17 with a named volume
-2. `cms-migrate` — one-shot job running `payload migrate` (production does **not** auto-push schema)
-3. `cms-seed` — one-shot job loading the practice's content; skips anything already
+1. `caddy` — the only service bound to the host (80/443). Terminates TLS with automatic Let's Encrypt certificates and proxies `SITE_DOMAIN` → web, `CMS_DOMAIN` → cms. Config in `deploy/Caddyfile`.
+2. `postgres` — PostgreSQL 17 with a named volume
+3. `cms-migrate` — one-shot job running `payload migrate` (production does **not** auto-push schema)
+4. `cms-seed` — one-shot job loading the practice's content; skips anything already
    present, so it is safe on every deploy. `SEED_FORCE=1` re-asserts the canonical
    content and deletes poradnie/personnel not listed in `seed.ts`.
-4. `cms` — slim standalone runtime, media uploads on a named volume
-5. `web` — slim standalone runtime, reaches the CMS over the docker network
+5. `cms` — slim standalone runtime, media uploads on a named volume
+6. `web` — slim standalone runtime, reaches the CMS over the docker network
 
-`cms-migrate` and `cms-seed` share one image (`medical-centre-prod-cms-tools`), which
-is the full ~2 GB build stage — worth knowing if you push images to a registry rather
-than building on the host.
+`cms-migrate` and `cms-seed` share one image (`cms-tools`), which is the full ~2 GB
+build stage — worth knowing, since it gets pulled onto the server like the others.
 
-Two env vars matter for a preview deploy:
+Three env vars need care:
 
 - `SITE_INDEXABLE` (default `false`) — serves a `Disallow: /` robots.txt and a
   `noindex` meta tag. Read at runtime, so promoting a preview to production needs no
   rebuild.
 - `NEXT_PUBLIC_CMS_URL` — inlined into the web bundle **at build time** and also used
   for `next/image` remote patterns, so changing it requires rebuilding the `web`
-  image, not just restarting it.
+  image, not just restarting it. In CI it comes from the `NEXT_PUBLIC_CMS_URL`
+  repository variable.
+- `CMS_PUBLIC_URL` — Payload's `serverURL`. Compose derives it from
+  `NEXT_PUBLIC_CMS_URL`; without it Payload would emit `http://` media URLs that
+  `next/image` then refuses to load.
 
-Before the first production deploy, create the initial migration (with dev Postgres running):
+### Images are built in CI
+
+`.github/workflows/images.yml` builds `cms`, `cms-tools` and `web` on every push to
+`main` and pushes them to GHCR, tagged `latest` and the commit SHA. Building on the
+server is possible (`up --build`) but slow on a small VPS, and the Next.js build can
+run out of memory on 4 GB.
+
+Set the `NEXT_PUBLIC_CMS_URL` repository variable (Settings → Secrets and variables →
+Actions → Variables) before the first run.
+
+### Deploying
+
+Server prerequisites: Docker with the compose plugin, DNS A records for both
+hostnames pointing at the server, and ports 80/443 open.
 
 ```sh
-pnpm --filter @medical-centre/cms migrate:create initial
+# once — GHCR packages are private by default
+echo "$GHCR_TOKEN" | docker login ghcr.io -u grzegorzxpatyk --password-stdin
+
+git clone git@github.com:grzegorzxpatyk/medical-centre.git /srv/medical-centre
+cd /srv/medical-centre
+cp .env.example .env        # set PAYLOAD_SECRET, POSTGRES_PASSWORD, the domains,
+                            # ACME_EMAIL, REGISTRY, and the public URLs
 ```
 
 Then:
 
 ```sh
-# .env must define PAYLOAD_SECRET (and optionally POSTGRES_* overrides)
-docker compose -f docker-compose.prod.yml up --build -d
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
+
+Subsequent deploys are the same two commands. `docker image prune -f` afterwards keeps
+the disk from filling up with superseded `cms-tools` layers.
+
+Pin a specific build by setting `IMAGE_TAG` to a commit SHA — that is also how you roll
+back.
+
+### Backups
+
+`scripts/backup.sh` dumps the database and archives the media volume into
+`BACKUP_DIR` (default `/var/backups/medical-centre`), keeping `RETENTION_DAYS`
+(default 14) of history. Restore instructions are in the comments at the bottom of the
+script.
+
+```sh
+20 3 * * * cd /srv/medical-centre && ./scripts/backup.sh 2>&1 | logger -t mc-backup
+```
+
+The script writes to local disk only; uncomment the `rclone copy` line once a remote is
+configured, so the backups survive losing the server itself. Hetzner's own snapshots
+are a useful complement but not a substitute — they are on the same provider account.
 
 ## Scripts
 

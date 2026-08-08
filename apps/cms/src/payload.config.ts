@@ -18,6 +18,10 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  // Empty means "infer from the request", which is right in dev. In production
+  // Caddy terminates TLS, so without this Payload would hand out http:// URLs
+  // for media and next/image would refuse to load them.
+  serverURL: process.env.CMS_PUBLIC_URL || '',
   admin: {
     user: Users.slug,
     importMap: {
