@@ -15,7 +15,7 @@ export function LinkButton({ href, variant, size, className, children }: LinkBut
     return (
         <Link
             href={href}
-            className={cn(buttonVariants({ variant, size }), 'hidden text-xs font-semibold tracking-wide uppercase sm:inline-flex', className)}
+            className={cn(buttonVariants({ variant, size }), className)}
         >
             {children}
         </Link>

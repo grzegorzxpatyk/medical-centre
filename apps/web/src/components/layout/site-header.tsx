@@ -88,6 +88,7 @@ export function SiteHeader({ data }: { data: SiteData }) {
             <LinkButton
               size="lg"
               href="/umow-wizyte"
+              className='hidden text-xs font-semibold tracking-wide uppercase sm:inline-flex'
             >
               Umów wizytę
             </LinkButton>
