@@ -66,7 +66,7 @@ See `apps/web/src/lib/api.ts` for a typed REST client using them. The generated 
 
 Each app has a multi-stage `Dockerfile` using `turbo prune` and Next.js standalone output. `docker-compose.prod.yml` orchestrates:
 
-1. `caddy` — the only service bound to the host (80/443). Terminates TLS with automatic Let's Encrypt certificates and proxies `SITE_DOMAIN` → web, `CMS_DOMAIN` → cms. Config in `deploy/Caddyfile`.
+1. `caddy` — the only service bound to the host (80/443). Terminates TLS with a Cloudflare origin certificate and proxies `SITE_DOMAIN` → web (`www.` redirects to the apex), `CMS_DOMAIN` → cms. Config in `deploy/Caddyfile`.
 2. `postgres` — PostgreSQL 17 with a named volume
 3. `cms-migrate` — one-shot job running `payload migrate` (production does **not** auto-push schema)
 4. `cms-seed` — one-shot job loading the practice's content; skips anything already
@@ -91,43 +91,46 @@ Three env vars need care:
   `NEXT_PUBLIC_CMS_URL`; without it Payload would emit `http://` media URLs that
   `next/image` then refuses to load.
 
-### Images are built in CI
+### Hosting
 
-`.github/workflows/images.yml` builds `cms`, `cms-tools` and `web` on every push to
-`main` and pushes them to GHCR, tagged `latest` and the commit SHA. Building on the
-server is possible (`up --build`) but slow on a small VPS, and the Next.js build can
-run out of memory on 4 GB.
+Production runs on a mikr.us 3.0 VPS (2 GB RAM, x86_64, LXC). It has no public IPv4
+of its own, only IPv6, so the domain's DNS is on Cloudflare: proxied AAAA records for
+`@`, `www` and `cms` point at the server's IPv6 and Cloudflare serves IPv4 visitors.
+SSL/TLS mode is **Full (strict)**; the origin leg uses a Cloudflare Origin CA
+certificate (SSL/TLS → Origin Server, covering the apex and `*.` domain) saved on the
+server as `deploy/certs/origin.pem` and `deploy/certs/origin.key`.
 
-Set the `NEXT_PUBLIC_CMS_URL` repository variable (Settings → Secrets and variables →
-Actions → Variables) before the first run.
+2 GB is enough to run the stack but not to build it, so images are never built on the
+server.
 
 ### Deploying
 
-Server prerequisites: Docker with the compose plugin, DNS A records for both
-hostnames pointing at the server, and ports 80/443 open.
+`scripts/deploy.sh` builds the three images locally, copies the runtime files
+(compose file, Caddyfile, backup script) and the images over SSH, and runs
+`up -d`:
 
 ```sh
-# once — GHCR packages are private by default
-echo "$GHCR_TOKEN" | docker login ghcr.io -u grzegorzxpatyk --password-stdin
-
-git clone git@github.com:grzegorzxpatyk/medical-centre.git /srv/medical-centre
-cd /srv/medical-centre
-cp .env.example .env        # set PAYLOAD_SECRET, POSTGRES_PASSWORD, the domains,
-                            # ACME_EMAIL, REGISTRY, and the public URLs
+DEPLOY_HOST=root@srvXX.mikr.us DEPLOY_PORT=10XXX ./scripts/deploy.sh
 ```
 
-Then:
+One-time server setup before the first run — Docker with the compose plugin, then in
+`/srv/medical-centre`: a `.env` based on `.env.example` (strong `PAYLOAD_SECRET` and
+`POSTGRES_PASSWORD`, `NEXT_PUBLIC_CMS_URL=https://cms.gabinetzielonki.pl`,
+`FRONTEND_URL=https://gabinetzielonki.pl`, and **no** `REGISTRY`, so compose uses the
+locally loaded `medical-centre/*` tags) and the origin certificate in `deploy/certs/`.
 
-```sh
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
-```
+Uploading `cms-tools` (~2 GB) dominates deploy time. `SKIP_BUILD=1` re-ships existing
+images, e.g. after a dropped connection.
 
-Subsequent deploys are the same two commands. `docker image prune -f` afterwards keeps
-the disk from filling up with superseded `cms-tools` layers.
+### Images in CI (alternative)
 
-Pin a specific build by setting `IMAGE_TAG` to a commit SHA — that is also how you roll
-back.
+`.github/workflows/images.yml` builds the same images on every push to `main` and
+pushes them to GHCR, tagged `latest` and the commit SHA. To deploy from there instead,
+set `REGISTRY=ghcr.io/grzegorzxpatyk/medical-centre` in the server's `.env`,
+`docker login ghcr.io` once, and run `docker compose -f docker-compose.prod.yml pull &&
+docker compose -f docker-compose.prod.yml up -d`. Pin a build (or roll back) by
+setting `IMAGE_TAG` to a commit SHA. The `NEXT_PUBLIC_CMS_URL` repository variable must
+be set before the first run.
 
 ### Backups
 
@@ -141,8 +144,8 @@ script.
 ```
 
 The script writes to local disk only; uncomment the `rclone copy` line once a remote is
-configured, so the backups survive losing the server itself. Hetzner's own snapshots
-are a useful complement but not a substitute — they are on the same provider account.
+configured, so the backups survive losing the server itself. mikr.us takes no
+snapshots, so an off-server copy is the only protection against losing the VPS.
 
 ## Scripts
 

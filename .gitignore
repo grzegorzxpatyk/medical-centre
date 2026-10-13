@@ -22,3 +22,6 @@ apps/cms/media/
 # Misc
 .DS_Store
 *.log
+
+# Cloudflare origin certificate (deploy/Caddyfile)
+deploy/certs/

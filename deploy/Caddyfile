@@ -1,23 +1,38 @@
 # Reverse proxy for the production stack.
 #
-# Caddy terminates TLS and obtains/renews Let's Encrypt certificates on its
-# own, which is why no app container publishes a port on the host any more —
-# cms and web are reachable only over the compose network.
+# The server (mikr.us) has no public IPv4 of its own, only IPv6, so Cloudflare
+# sits in front: proxied AAAA records point at the server and Cloudflare serves
+# visitors on IPv4. Caddy terminates the Cloudflare -> origin leg with a
+# Cloudflare Origin CA certificate (SSL mode "Full (strict)"), which is why
+# there is no ACME here — an HTTP-01 challenge through the proxy is fragile.
 #
-# Both hostnames must already resolve to this server's public IP *before* the
-# stack starts. ACME uses an HTTP-01 challenge on port 80; if DNS is not in
-# place yet Caddy retries with a growing backoff and the site serves a TLS
-# error in the meantime.
+# The certificate and key go in deploy/certs/ (gitignored), generated in the
+# Cloudflare dashboard under SSL/TLS -> Origin Server for both the apex and
+# *.domain. They are valid for 15 years.
+#
+# No app container publishes a port on the host — cms and web are reachable
+# only over the compose network.
 {
-	email {$ACME_EMAIL}
+	auto_https disable_certs
+}
+
+(origin_tls) {
+	tls /certs/origin.pem /certs/origin.key
 }
 
 {$SITE_DOMAIN} {
+	import origin_tls
 	encode zstd gzip
 	reverse_proxy web:3000
 }
 
+www.{$SITE_DOMAIN} {
+	import origin_tls
+	redir https://{$SITE_DOMAIN}{uri} permanent
+}
+
 {$CMS_DOMAIN} {
+	import origin_tls
 	encode zstd gzip
 	reverse_proxy cms:3001
 }
