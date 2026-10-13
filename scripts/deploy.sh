@@ -3,6 +3,7 @@
 # so the server never builds anything and needs no registry access.
 #
 #   DEPLOY_HOST=root@srv12.mikr.us DEPLOY_PORT=10123 ./scripts/deploy.sh
+#   DEPLOY_HOST=zielonki ./scripts/deploy.sh      # an ~/.ssh/config alias
 #
 # Optional:
 #   NEXT_PUBLIC_CMS_URL  inlined into the web bundle (default https://cms.gabinetzielonki.pl)
@@ -18,18 +19,21 @@
 set -euo pipefail
 
 : "${DEPLOY_HOST:?set DEPLOY_HOST, e.g. root@srv12.mikr.us}"
-DEPLOY_PORT="${DEPLOY_PORT:-22}"
 DEPLOY_DIR="${DEPLOY_DIR:-/srv/medical-centre}"
 export NEXT_PUBLIC_CMS_URL="${NEXT_PUBLIC_CMS_URL:-https://cms.gabinetzielonki.pl}"
 # The server is x86_64; pin it so a build from an ARM laptop still runs there.
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
-# Must match the tags compose resolves on the server.
-unset REGISTRY IMAGE_TAG
+# The build ignores the local .env (it holds dev settings, possibly a
+# REGISTRY that would change the tags). Compose still insists on the
+# variables marked required, so give it build-time placeholders — the real
+# values live in the server's .env.
+export SITE_DOMAIN=build CMS_DOMAIN=build PAYLOAD_SECRET=build
 
 cd "$(dirname "$0")/.."
 
-compose=(docker compose -f docker-compose.prod.yml)
-ssh_cmd=(ssh -p "$DEPLOY_PORT" "$DEPLOY_HOST")
+compose=(docker compose --env-file /dev/null -f docker-compose.prod.yml)
+# Only pass -p when asked to, so a port from ~/.ssh/config is not overridden.
+ssh_cmd=(ssh ${DEPLOY_PORT:+-p "$DEPLOY_PORT"} "$DEPLOY_HOST")
 images=(medical-centre/web:latest medical-centre/cms:latest medical-centre/cms-tools:latest)
 
 if [[ "${SKIP_BUILD:-0}" != 1 ]]; then
