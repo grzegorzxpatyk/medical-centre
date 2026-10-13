@@ -93,6 +93,9 @@ Three env vars need care:
 
 ### Hosting
 
+Full runbook — server details, Cloudflare settings, certificate rotation, going
+live: [`docs/deployment.md`](docs/deployment.md).
+
 Production runs on a mikr.us 3.0 VPS (2 GB RAM, x86_64, LXC). It has no public IPv4
 of its own, only IPv6, so the domain's DNS is on Cloudflare: proxied AAAA records for
 `@`, `www` and `cms` point at the server's IPv6 and Cloudflare serves IPv4 visitors.
